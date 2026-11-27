@@ -70,7 +70,6 @@ h1 { margin: 1.45rem 0; font-size: clamp(4.5rem, 8.8vw, 9rem); }
   isolation: isolate;
 }
 .catalog-card {
-  --stack-step: 0;
   --card-paper: #efe5d7;
   display: grid;
   grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
@@ -79,9 +78,9 @@ h1 { margin: 1.45rem 0; font-size: clamp(4.5rem, 8.8vw, 9rem); }
   border: 1px solid #ab9984;
   box-shadow: 0 -5px 20px -16px #382719;
 }
-.catalog-card:nth-child(2) { --stack-step: 1; --card-paper: #e2ccba; }
-.catalog-card:nth-child(3) { --stack-step: 2; --card-paper: #ded2c2; }
-.catalog-card:nth-child(4) { --stack-step: 3; --card-paper: #ebd5ce; }
+.catalog-slot:nth-child(2) .catalog-card { --card-paper: #e2ccba; }
+.catalog-slot:nth-child(3) .catalog-card { --card-paper: #ded2c2; }
+.catalog-slot:nth-child(4) .catalog-card { --card-paper: #ebd5ce; }
 .catalog-card img {
   display: block;
   width: 100%;
@@ -97,11 +96,23 @@ h1 { margin: 1.45rem 0; font-size: clamp(4.5rem, 8.8vw, 9rem); }
 }
 .catalog-copy h3 { font: 400 clamp(2rem, 4.35vw, 4.8rem)/1 var(--serif); letter-spacing: -.05em; max-width: 13em; }
 .catalog-copy p { max-width: 32ch; margin: 1rem 0 .65rem; }
-@media (min-height: 36rem) and (prefers-reduced-motion: no-preference) {
-  .catalog-card { position: sticky; top: calc(3svh + var(--stack-step) * .8rem); }
-  .catalog-stack { padding-bottom: clamp(2rem, 8svh, 6rem); }
-  /* Give keyboard users a normal document flow for every product link. */
-  .catalog-stack:has(:focus-visible) .catalog-card { position: relative; top: auto; }
+/* Slots share a pin line and height, so they leave together. Only their
+   inner cards transform; the scroll measurements stay in document flow. */
+.catalog-stack { grid-auto-rows: 1fr; }
+.catalog-card { position: relative; height: 100%; transform-origin: center top; }
+@media (prefers-reduced-motion: no-preference) {
+  .catalog-stack.is-stacking {
+    grid-template-rows: repeat(var(--card-count), 1fr) clamp(4rem, 17svh, 10rem);
+  }
+  .catalog-stack.is-stacking::after { content: ""; }
+  .is-stacking .catalog-slot { position: sticky; top: var(--pin); }
+  .is-stacking .catalog-card {
+    transform: translateY(var(--retreat, 0px)) scale(var(--scale, 1));
+  }
+  .is-stacking .catalog-card::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: #25190f; opacity: var(--shade, 0);
+  }
 }
 .atelier { background: #bfb4a3; display: grid; align-items: center; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 7.5vw, 8rem); border-block: 1px solid var(--rule); }
 .portrait { width: 100%; max-height: 34rem; height: auto; object-fit: contain; object-position: right; }
